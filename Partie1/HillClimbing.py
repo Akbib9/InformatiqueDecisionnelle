@@ -1,6 +1,5 @@
 # Using a Python dictionary to act as an adjacency list
 from queue import Empty
-from xml.sax.handler import feature_external_ges
 
 graph = {
     (1,1) : {'W':0, 'N':0, 'E':1, 'S':0},
@@ -56,54 +55,72 @@ graph = {
 
 thesee = (6,1)
 minotaure = (2,5)
-depth = 3
 
-def dfs2(goal, start, graph, depth):
+def dfs(goal, start, graph):
     queue = [[start]]
-    #print("la",queue)
+    print(queue)
     node1 =[0,0]
     while len(queue) != 0:
         node = list(queue[0][-1]) # coordonnées en mode liste ex : (2.5) -> [2.5]
         infoNode = graph[queue[0][-1]].copy() # dico avec infos sur direction {'W':1, 'N':0, 'E':0, 'S':0}
         save = queue.pop(0)
         kidpath = save.copy()
-        #print("long path",len(kidpath))
-        if len(kidpath) < depth:
-            for direction in 'WSEN':
-                if infoNode[direction] == 1:
-                    if direction == 'N':
-                        node1[0] = node[0] - 1
-                        node1[1] = node[1]
-                    elif direction == 'E':
-                        node1[1] = node[1] + 1
-                        node1[0] = node[0]
-                    elif direction == 'S':
-                        node1[0] = node[0] + 1
-                        node1[1] = node[1]
-                    elif direction == 'W':
-                        node1[1] = node[1] - 1
-                        node1[0] = node[0]
-                    kidpath = save.copy()
-                    node2 = tuple(node1)
-                    if node2 not in kidpath:
-                        kidpath.append(node2)
-                        queue.insert(0,kidpath)
-                    if node2 == goal and len(kidpath) < depth:
-                        #print("Dernière queue : ",queue, len(kidpath), depth)
-                        return kidpath
-            infoNode = infoNode.clear()
-            #print("Nouvelle queue : ", queue)
-        if not queue:
-            return False
+        if len(queue) != 0:
+            heur = graph[queue[0][-1]]['H']
+            print(queue[0][-1])
+            n=0
+            for path in queue:
+                print(path)
+                print(path[-1])
+                heur2 = graph[path[-1]]['H']
+                print(heur2)
+                n+=1
+                if heur2 < heur:
+                    temp = queue.pop(n-1)
+                    print(temp)
+                    queue.insert(0,temp)
+                    print(queue)
+        for direction in 'WSEN':
+            if infoNode[direction] == 1:
+                if direction == 'N':
+                    node1[0] = node[0] - 1
+                    node1[1] = node[1]
+                elif direction == 'E':
+                    node1[1] = node[1] + 1
+                    node1[0] = node[0]
+                elif direction == 'S':
+                    node1[0] = node[0] + 1
+                    node1[1] = node[1]
+                elif direction == 'W':
+                    node1[1] = node[1] - 1
+                    node1[0] = node[0]
+                kidpath = save.copy()
+                node2 = tuple(node1)
+                if node2 not in kidpath:
+                    kidpath.append(node2)
+                    queue.insert(0,kidpath)
+                if node2 == goal:
+                    print("Dernière queue : ",queue)
+                    return kidpath
+        infoNode = infoNode.clear()
+        print("Nouvelle queue : ", queue)
 
-#Version1
 
-def iterative_deepening(thesee, minotaure, graph, depth):
-    #print("Profondeur actuelle", depth)
-    if dfs2(thesee, minotaure, graph, depth) == False:
-        depth+= 1
-        iterative_deepening(thesee, minotaure, graph, depth)
-    else: 
-        print("Le chemin vers le goal est", dfs2(thesee, minotaure, graph, depth), "")
+def heuristic(graph, goal):
+    for cle in graph.keys():
+        xgoal = goal[0]
+        ygoal = goal[1]
+        #print(xgoal, ygoal)
+        xcle = cle[0]
+        ycle = cle[1]
+        #print(xcle, ycle)
+        diffx = abs(xgoal-xcle)
+        diffy = abs(ygoal-ycle)
+        #print(diffx, diffy)
+        heurinode = diffx+diffy
+        #print(heurinode)
+        graph[cle]['H'] = heurinode
+        #print(graph[cle])
 
-iterative_deepening(thesee, minotaure, graph, depth)
+heuristic(graph, thesee)
+print('le chemin vhoisi est : ', dfs(thesee, minotaure, graph))
