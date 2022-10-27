@@ -53,7 +53,7 @@ graph = {
     (7,7) : {'W':1, 'N':0, 'E':0, 'S':0},
 }
 
-thesee = (6,1)
+thesee = (6,6)
 minotaure = (2,5)
 
 def dfs(goal, start, graph):
@@ -65,21 +65,7 @@ def dfs(goal, start, graph):
         infoNode = graph[queue[0][-1]].copy() # dico avec infos sur direction {'W':1, 'N':0, 'E':0, 'S':0}
         save = queue.pop(0)
         kidpath = save.copy()
-        if len(queue) != 0:
-            heur = graph[queue[0][-1]]['H']
-            print(queue[0][-1])
-            n=0
-            for path in queue:
-                print(path)
-                print(path[-1])
-                heur2 = graph[path[-1]]['H']
-                print(heur2)
-                n+=1
-                if heur2 < heur:
-                    temp = queue.pop(n-1)
-                    print(temp)
-                    queue.insert(0,temp)
-                    print(queue)
+        kidspath = []
         for direction in 'WSEN':
             if infoNode[direction] == 1:
                 if direction == 'N':
@@ -98,10 +84,15 @@ def dfs(goal, start, graph):
                 node2 = tuple(node1)
                 if node2 not in kidpath:
                     kidpath.append(node2)
-                    queue.insert(0,kidpath)
+                    kidspath.append(kidpath)
+                    print(kidspath)
                 if node2 == goal:
                     print("Dernière queue : ",queue)
                     return kidpath
+        kidspath = sorting(kidspath, graph) #Tri des noeuds enfants (ordre coirssant) avant de les inserer dans la queue
+        print(kidspath)
+        for path in kidspath[::-1]:
+            queue.insert(0,path)
         infoNode = infoNode.clear()
         print("Nouvelle queue : ", queue)
 
@@ -122,5 +113,15 @@ def heuristic(graph, goal):
         graph[cle]['H'] = heurinode
         #print(graph[cle])
 
+def sorting(liste, graph):
+    for i in range(len (liste)):
+        mini=i
+        for j in range(i+1, len (liste)):
+            if graph[liste[j][-1]]['H']<graph[liste[mini][-1]]['H'] :
+                print(graph[liste[j][-1]]['H'], graph[liste[mini][-1]]['H'])
+                mini = j
+        liste[i], liste[mini] = liste[mini], liste[i]
+    return liste
+
 heuristic(graph, thesee)
-print('le chemin vhoisi est : ', dfs(thesee, minotaure, graph))
+print('le chemin choisi est : ', dfs(thesee, minotaure, graph))
