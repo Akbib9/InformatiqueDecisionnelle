@@ -55,7 +55,7 @@ def PlayerMove(player_pos, adv_pos,nbr_player):
         if get_adjacent_positions(player_pos,game_board) == 0:
             return 0
         print("Positions valides :", get_adjacent_positions(player_pos,game_board))
-        game_board[player_pos[0]][player_pos[1]] = " "
+        game_board[player_pos[0]][player_pos[1]] = "_"
         i, j = map(int, input("Entrez les coordonnées de la case (ligne colonne) : ").split())
         if (i, j) in get_adjacent_positions(player_pos,game_board) and (i, j) != adv_pos:
             player_pos = (i, j)
@@ -91,16 +91,16 @@ def BlokCase(game_board, player_pos, adv_pos):
 
 # Création du tableau de jeu
 game_board = [
-    [" "," "," "," "," "," "],
-    [" "," "," "," "," "," "],
-    [" "," "," "," "," "," "],
-    [" "," "," "," "," "," "],
-    [" "," "," "," "," "," "],
-    [" "," "," "," "," "," "],
+    ["_","_","_","_","_","_"],
+    ["_","_","_","_","_","_"],
+    ["_","_","_","_","_","_"],
+    ["_","_","_","_","_","_"],
+    ["_","_","_","_","_","_"],
+    ["_","_","_","_","_","_"],
 ]
 
 # Positions initiales des pions
-player1_pos = (0,4)  # Coin supérieur gauche
+player1_pos = (0,3)  # Coin supérieur gauche
 player2_pos = (5,3)  # Coin inférieur droit
 game_board[player1_pos[0]][player1_pos[1]] = "1"
 game_board[player2_pos[0]][player2_pos[1]] = "2"
