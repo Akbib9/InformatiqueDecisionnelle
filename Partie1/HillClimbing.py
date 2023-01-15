@@ -1,5 +1,7 @@
-# Using a Python dictionary to act as an adjacency list
-from queue import Empty
+import time
+import psutil
+import os
+
 
 graph = {
     (1,1) : {'W':0, 'N':0, 'E':1, 'S':0},
@@ -22,7 +24,7 @@ graph = {
     (3,4) : {'W':1, 'N':1, 'E':0, 'S':0},
     (3,5) : {'W':0, 'N':1, 'E':1, 'S':0},
     (3,6) : {'W':1, 'N':0, 'E':0, 'S':0},
-    (3,7) : {'W':1, 'N':0, 'E':0, 'S':1},
+    (3,7) : {'W':0, 'N':1, 'E':0, 'S':1},
     (4,1) : {'W':0, 'N':1, 'E':0, 'S':1},
     (4,2) : {'W':0, 'N':1, 'E':0, 'S':0},
     (4,3) : {'W':0, 'N':1, 'E':0, 'S':1},
@@ -53,8 +55,8 @@ graph = {
     (7,7) : {'W':1, 'N':0, 'E':0, 'S':0},
 }
 
-thesee = (6,6)
-minotaure = (2,5)
+thesee = (6,1)
+minotaure = (4,7)
 
 def dfs(goal, start, graph):
     queue = [[start]]
@@ -85,12 +87,13 @@ def dfs(goal, start, graph):
                 if node2 not in kidpath:
                     kidpath.append(node2)
                     kidspath.append(kidpath)
-                    print(kidspath)
+                    #print(kidspath)
                 if node2 == goal:
-                    print("Dernière queue : ",queue)
+                    #print("Dernière queue : ",queue)
                     return kidpath
+        print("Voici les chemins enfants non triés : ",kidspath)
         kidspath = sorting(kidspath, graph) #Tri des noeuds enfants (ordre coirssant) avant de les inserer dans la queue
-        print(kidspath)
+        print("Voici les chemins enfants triés avant d'être ajoutés : ",kidspath)
         for path in kidspath[::-1]:
             queue.insert(0,path)
         infoNode = infoNode.clear()
@@ -118,10 +121,25 @@ def sorting(liste, graph):
         mini=i
         for j in range(i+1, len (liste)):
             if graph[liste[j][-1]]['H']<graph[liste[mini][-1]]['H'] :
-                print(graph[liste[j][-1]]['H'], graph[liste[mini][-1]]['H'])
+                #print(graph[liste[j][-1]]['H'], graph[liste[mini][-1]]['H'])
+                print("Changement de place !")
                 mini = j
         liste[i], liste[mini] = liste[mini], liste[i]
     return liste
 
-heuristic(graph, thesee)
-print('le chemin choisi est : ', dfs(thesee, minotaure, graph))
+heuristic(graph, minotaure)
+
+#Temps écoulé avant la fonction
+start_time = time.perf_counter()
+#mémoire consomée avant la fonction
+process = psutil.Process(os.getpid())
+before = process.memory_info().rss / (1024 ** 2)
+#Appel de la fonction iterative Deepening
+print('le chemin choisi est : ', dfs(minotaure, thesee, graph))
+#Temps écoulé après la fonction
+end_time = time.perf_counter()
+#Mémoire consommée après la fonction
+after = process.memory_info().rss / (1024 ** 2)
+
+print(f'Temps d\'écoulé : {end_time - start_time} secondes')
+print(f"Le script a utilisé {after - before} bytes de mémoire.")

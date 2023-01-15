@@ -1,6 +1,6 @@
-# Using a Python dictionary to act as an adjacency list
-from queue import Empty
-from xml.sax.handler import feature_external_ges
+import time
+import psutil
+import os
 
 graph = {
     (1,1) : {'W':0, 'N':0, 'E':1, 'S':0},
@@ -23,7 +23,7 @@ graph = {
     (3,4) : {'W':1, 'N':1, 'E':0, 'S':0},
     (3,5) : {'W':0, 'N':1, 'E':1, 'S':0},
     (3,6) : {'W':1, 'N':0, 'E':0, 'S':0},
-    (3,7) : {'W':1, 'N':0, 'E':0, 'S':1},
+    (3,7) : {'W':0, 'N':1, 'E':0, 'S':1},
     (4,1) : {'W':0, 'N':1, 'E':0, 'S':1},
     (4,2) : {'W':0, 'N':1, 'E':0, 'S':0},
     (4,3) : {'W':0, 'N':1, 'E':0, 'S':1},
@@ -55,8 +55,8 @@ graph = {
 }
 
 thesee = (6,1)
-minotaure = (2,5)
-depth = 3
+minotaure = (4,7)
+depth = 5
 
 def dfs2(goal, start, graph, depth):
     queue = [[start]]
@@ -68,7 +68,7 @@ def dfs2(goal, start, graph, depth):
         save = queue.pop(0)
         kidpath = save.copy()
         #print("long path",len(kidpath))
-        if len(kidpath) < depth:
+        if len(kidpath) < depth: #Condition supplementaire à DFS verifiant si le chemin n'a pas déjà atteint la limite de profondeur
             for direction in 'WSEN':
                 if infoNode[direction] == 1:
                     if direction == 'N':
@@ -92,7 +92,7 @@ def dfs2(goal, start, graph, depth):
                         #print("Dernière queue : ",queue, len(kidpath), depth)
                         return kidpath
             infoNode = infoNode.clear()
-            #print("Nouvelle queue : ", queue)
+            print("Nouvelle queue suite à l'ajout des noeuds enfants : ", queue)
         if not queue:
             return False
 
@@ -100,10 +100,25 @@ def dfs2(goal, start, graph, depth):
 
 def iterative_deepening(thesee, minotaure, graph, depth):
     #print("Profondeur actuelle", depth)
-    if dfs2(thesee, minotaure, graph, depth) == False:
+    if dfs2(minotaure,thesee, graph, depth) == False:
         depth+= 1
+        print("On recommence avec une profondeur de : " + str(depth))
         iterative_deepening(thesee, minotaure, graph, depth)
     else: 
-        print("Le chemin vers le goal est", dfs2(thesee, minotaure, graph, depth), "")
+        print("Le chemin à parcourir pour trouver le Minautore est :", dfs2(minotaure, thesee, graph, depth), "")
 
+
+#Temps écoulé avant la fonction
+start_time = time.perf_counter()
+#mémoire consomée avant la fonction
+process = psutil.Process(os.getpid())
+before = process.memory_info().rss / (1024 ** 2)
+#Appel de la fonction iterative Deepening
 iterative_deepening(thesee, minotaure, graph, depth)
+#Temps écoulé après la fonction
+end_time = time.perf_counter()
+#Mémoire consommée après la fonction
+after = process.memory_info().rss / (1024 ** 2)
+
+print(f'Temps d\'écoulé : {end_time - start_time} secondes')
+print(f"Le script a utilisé {after - before} bytes de mémoire.")

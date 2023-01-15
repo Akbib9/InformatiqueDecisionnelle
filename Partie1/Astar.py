@@ -1,5 +1,6 @@
-# Using a Python dictionary to act as an adjacency list
-from queue import Empty
+import time
+import psutil
+import os
 
 graph = {
     (1,1) : {'W':0, 'N':0, 'E':1, 'S':0},
@@ -53,8 +54,8 @@ graph = {
     (7,7) : {'W':1, 'N':0, 'E':0, 'S':0},
 }
 
-thesee = (6,1)
-minotaure = (2,5)
+thesee = (6,1) #(7,1)
+minotaure = (4,7) #(1,7)
 
 def a_star(goal, start, graph):
     queue = [[start]]
@@ -89,12 +90,12 @@ def a_star(goal, start, graph):
                 if node2 == goal:
                     print("Ce chemin à atteint le goal", node2)
         queue = sorting(queue) #Tri de la queue entière après insertion des noeuds enfants
-        print("Etat de la file après le tri : ", queue, len(queue))
+        print("Etat de la file après le tri : ", queue)
         boole = False
         while boole == False : #Gesion des chemins redondants
             boole, queue = delete_rundondant_paths(queue, graph, boole)
-        if goal in queue[0]:
-            print("Dernière queue : ",queue, len(queue))
+        if goal in queue[0]: #Branch and bound dans cette condition
+            print("Le Goal est premier dans la file : ",queue, len(queue))
             return queue[0]
         infoNode = infoNode.clear()
         print("Nouvelle queue : ", queue)
@@ -130,6 +131,7 @@ def delete_rundondant_paths(path, graph, boole):
         for j in range(len(path)):
             #print("dernier noeud du chemin : ", path[i][-1], path[j])
             if i != j and path[i][-1] in path[j] and sum_heuristic_accumulated_cost(path[i], graph) >= sum_heuristic_accumulated_cost(path[j], graph):
+                print("Le chemin suivant est redondant : !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", path[i])
                 del(path[i])
                 boole = False
                 return boole, path
@@ -142,9 +144,25 @@ def sorting(liste):
         for j in range(i+1, len (liste)):
             if sum_heuristic_accumulated_cost(liste[j], graph) < sum_heuristic_accumulated_cost(liste[mini], graph) :
                 #print(sum_heuristic_accumulated_cost(liste[j], graph), sum_heuristic_accumulated_cost(liste[mini], graph))
+                print("Il y a un changement !!")
                 mini = j
         liste[i], liste[mini] = liste[mini], liste[i]
     return liste
 
-heuristic(graph, thesee)
-print('le chemin choisi est : ', a_star(thesee, minotaure, graph))
+heuristic(graph, minotaure)
+
+
+#Temps écoulé avant la fonction
+start_time = time.perf_counter()
+#mémoire consomée avant la fonction
+process = psutil.Process(os.getpid())
+before = process.memory_info().rss / (1024 ** 2)
+#Appel de la fonction iterative Deepening
+print('le chemin choisi est : ', a_star(minotaure, thesee, graph))
+#Temps écoulé après la fonction
+end_time = time.perf_counter()
+#Mémoire consommée après la fonction
+after = process.memory_info().rss / (1024 ** 2)
+
+print(f'Temps d\'écoulé : {end_time - start_time} secondes')
+print(f"Le script a utilisé {after - before} bytes de mémoire.")
